@@ -35,7 +35,7 @@ pipeline {
         stage('Verify Deployment') {
             steps {
                 // Checks if the app is actually alive
-                sleep 5
+                sleep 10
                 sh "curl -f http://localhost:${HOST_PORT} || exit 1"
             }
         }
