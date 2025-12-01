@@ -1,2 +1,7 @@
 Flask==1.1.4
 Flask-RESTful==0.3.9
+Werkzeug==1.0.1
+MarkupSafe==2.0.1
+six==1.16.0
+aniso8601==9.0.1
+pytz==2023.3
