@@ -1,15 +1,18 @@
-from alpine:latest
+# Use a specific Python version (3.9) that comes with pip pre-installed
+FROM python:3.9-alpine
 
-RUN apk add --no-cache python3-dev\
-	&& pip3 install --upgrade pip
-
+# Set the working directory
 WORKDIR /app
 
+# Copy the current directory contents into the container at /app
 COPY . /app
 
-RUN pip3 install -r requirements.txt
+# Install any needed packages specified in requirements.txt
+# We include --no-cache-dir to keep the image small
+RUN pip install --no-cache-dir -r requirements.txt
 
+# Make port 5000 available to the world outside this container
 EXPOSE 5000
 
-ENTRYPOINT ["python3"]
-CMD ["app.py"]
+# Run app.py when the container launches
+CMD ["python", "app.py"]
