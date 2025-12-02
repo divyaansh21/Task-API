@@ -11,7 +11,6 @@ pipeline {
         stage('Cleanup Old Deployments') {
             steps {
                 script {
-                    // Stops any existing container so we can deploy the new one
                     sh "docker stop ${APP_NAME} || true"
                     sh "docker rm ${APP_NAME} || true"
                 }
@@ -20,23 +19,31 @@ pipeline {
         
         stage('Build Docker Image') {
             steps {
-                // Builds the 'installer' package (Docker image)
                 sh "docker build -t ${APP_NAME}:latest ."
             }
         }
+
+        // ---TEST STAGE ---
+        stage('Unit Test') {
+            steps {
+                echo "Running Unit Tests inside the container..."
+                // This runs the python test script inside the image we just built
+                sh "docker run --rm ${APP_NAME}:latest python -m unittest test_app.py"
+            }
+        }
+        // ----------------------
         
         stage('Deploy Application') {
             steps {
-                // Runs the application on port 9000
                 sh "docker run -d --name ${APP_NAME} -p ${HOST_PORT}:${CONTAINER_PORT} ${APP_NAME}:latest"
             }
         }
         
         stage('Verify Deployment') {
             steps {
-                // Checks if the app is actually alive
+                echo "Waiting for application to initialize..."
                 sleep 10
-                sh "curl -f http://localhost:${HOST_PORT} || exit 1"
+                sh "curl -f http://localhost:${HOST_PORT} || (docker logs ${APP_NAME} && exit 1)"
             }
         }
     }
